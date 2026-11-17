@@ -117,8 +117,10 @@ router.post(
       ]);
     }
     if (completed && !existing?.completed) {
-      const { awardIfNew } = await import('../lib/notify.js');
-      awardIfNew(req.user.id, 'first_lesson', 'First Lesson Completed', 'You finished your first video lesson.');
+      const { award } = await import('../lib/notify.js');
+      award(req.user.id, 'first_lesson', 'First Lesson Completed', 'You finished your first video lesson.');
+      const done = get('SELECT COUNT(*) AS c FROM video_progress WHERE user_id = ? AND completed = 1', [req.user.id]).c;
+      if (done >= 10) award(req.user.id, 'consistent_learner', 'Consistent Learner', 'Ten video lessons completed.');
     }
     res.json({ ok: true });
   }),
